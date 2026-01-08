@@ -3,7 +3,7 @@ import json
 import os
 import sys
 
-def validate_logs():
+def logs_validate():
     """Validate experiment_data.json file"""
     log_file = "logs/experiment_data.json"
     
@@ -201,8 +201,9 @@ def validate_logs():
         print(f"   Details: {e}")
         return False
 
+""""
 def main():
-    """Main function"""
+    #Main function
     # Check if logs directory exists
     if not os.path.exists("logs"):
         print("❌ ERROR: 'logs' directory not found")
@@ -219,3 +220,10 @@ def main():
 if __name__ == "__main__":
     exit_code = main()
     sys.exit(exit_code)
+    """
+    
+if __name__ == "__main__":
+    if logs_validate():
+        exit(0)  # Succès
+    else:
+        exit(1)  # Échec

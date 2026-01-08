@@ -1,11 +1,154 @@
 [
   {
-    "id": "9e82e9b0-9b43-4a78-af43-d5d5ef848a2f",
-    "timestamp": "2025-12-26T01:26:41.177789",
-    "agent": "System",
-    "model": "unknown",
-    "action": "STARTUP",
-    "details": "Target: ./sandbox",
-    "status": "INFO"
-  }
+        "id": "9e82e9b0-9b43-4a78-af43-d5d5ef848a2f",
+        "timestamp": "2025-12-26T01:26:41.177789",
+        "agent": "System",
+        "model": "unknown",
+        "action": "STARTUP",
+        "details": "Target: ./sandbox",
+        "status": "INFO"
+    },
+
+    {
+        "id": "7d002595-58de-4994-9e37-9de987806cf8",
+        "timestamp": "2026-01-07T21:50:28.343096",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Test du logger par le Data Officer",
+            "output_response": "✅ Logger fonctionnel",
+            "note": "Test initial réussi"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "34adb5a3-90f9-4141-98bb-46b982f9bebe",
+        "timestamp": "2026-01-07T21:50:28.351074",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Test Analyser du code",
+            "output_response": "Réponse pour Analyser du code",
+            "test_note": "Test de CODE_ANALYSIS"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "16f0ec45-8848-4532-8807-bdbe1f80b4c1",
+        "timestamp": "2026-01-07T21:50:28.386468",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "CODE_GEN",
+        "details": {
+            "input_prompt": "Test Générer des tests",
+            "output_response": "Réponse pour Générer des tests",
+            "test_note": "Test de CODE_GEN"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "56f2caa8-5dba-46e8-8c70-ad449a379280",
+        "timestamp": "2026-01-07T21:50:28.424311",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test Debugger une erreur",
+            "output_response": "Réponse pour Debugger une erreur",
+            "test_note": "Test de DEBUG"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "1ce08451-d894-4350-a297-100fd85b01d4",
+        "timestamp": "2026-01-07T21:50:28.462864",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Test Corriger un bug",
+            "output_response": "Réponse pour Corriger un bug",
+            "test_note": "Test de FIX"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "af2bc5ed-a7c7-49db-9138-b262d3aab3d7",
+        "timestamp": "2026-01-07T21:54:58.730385",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Logger test by Data Officer",
+            "output_response": "✅ Logger functional",
+            "note": "Initial test successful"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "dc75edbe-2e4e-4f18-b4eb-490aca3d3c97",
+        "timestamp": "2026-01-07T21:54:58.740807",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Test Analyzing code",
+            "output_response": "Response for Analyzing code",
+            "test_note": "Test of CODE_ANALYSIS"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "35a3d27c-d2c8-4d69-88ea-d9b42026b26e",
+        "timestamp": "2026-01-07T21:54:58.787509",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "CODE_GEN",
+        "details": {
+            "input_prompt": "Test Generating tests",
+            "output_response": "Response for Generating tests",
+            "test_note": "Test of CODE_GEN"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "408ccb46-00fe-4043-8049-61cf1e15b1ac",
+        "timestamp": "2026-01-07T21:54:58.836553",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test Debugging an error",
+            "output_response": "Response for Debugging an error",
+            "test_note": "Test of DEBUG"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "59a9974e-b4e8-46f2-97bd-efcbc81bf38e",
+        "timestamp": "2026-01-07T21:54:58.880879",
+        "agent": "DataOfficer_Test",
+        "model": "gemini-2.5-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Test Fixing a bug",
+            "output_response": "Response for Fixing a bug",
+            "test_note": "Test of FIX"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "26f08fb4-b324-4201-84b5-221d4c13bf62",
+        "timestamp": "2026-01-07T22:45:12.592594",
+        "agent": "Test",
+        "model": "test",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "test",
+            "output_response": "test"
+        },
+        "status": "SUCCESS"
+    }
 ]
