@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
+"""
+    Log Validation Script - Data Officer
+    Validate the logs/experiment_data.json file for correctness and completeness.
+"""
 import json
 import os
 import sys
 
 def logs_validate():
     """Validate experiment_data.json file"""
-    log_file = "logs/experiment_data.json"
+    log_file = "../logs/experiment_data.json"
     
     print("🔍 LOG VALIDATION - Data Officer")
     print("=" * 50)
@@ -220,7 +224,7 @@ def main():
 if __name__ == "__main__":
     exit_code = main()
     sys.exit(exit_code)
-    """
+"""
     
 if __name__ == "__main__":
     if logs_validate():
