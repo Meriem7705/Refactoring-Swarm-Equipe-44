@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script de création du dataset de test - Data Officer
+Script for creation of internal test dataset- Data Officer
 """
 
 import os
@@ -18,7 +18,7 @@ def create_testInt_dataset():
     return sum(numbers) / len(numbers)
 
 def is_prime(n):
-    # Bug: deos not manage numbres <= 1
+    # Bug: Does not manage numbres <= 1
     for i in range(2, n):
         if n % i == 0:
             return False
@@ -61,18 +61,18 @@ if __name__ == "__main__":
     # 3. syntax_error.py
     with open(os.path.join(test_dir, "syntax_error.py"), "w") as f:
         f.write('''def broke_function():
-    # Erreur: no closing parenthesis 
+    # Error: no closing parenthesis 
     print("Hello World"
     
-    # Erreur: two_points_missing
+    # Error: two_points_missing
     if x > 5
         print("x is big")
     
-    # Erreur: incorrect Indentation
+    # Error: Incorrect indentation
     for i in range(10):
     print(i)  # no indention
     
-    # Erreur: undefined Variable
+    # Error: undefined Variable
     result = undefined_variable + 5
 
 # This file cannot be executed due to syntax errors
@@ -122,7 +122,7 @@ very_long_variable_name_that_is_hard_to_read = "This is a very long string that 
 def badly_formatted(x,y):
     result=x+y
     if result>100:
-        print("Big")
+        print("Large")
     else:
         print("Small")
     return result
