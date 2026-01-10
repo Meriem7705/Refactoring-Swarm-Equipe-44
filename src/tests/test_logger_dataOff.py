@@ -1,7 +1,7 @@
 import sys
 import os
 # Add src directory to Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from utils.logger import log_experiment, ActionType
 
@@ -106,7 +106,7 @@ def main():
     print("=" * 60)
     
     # Create logs directory if it doesn't exist
-    os.makedirs("logs", exist_ok=True)
+    os.makedirs("../../logs", exist_ok=True)
     
     # Run tests
     results = []
@@ -133,7 +133,7 @@ def main():
         # Show file preview
         try:
             import json
-            with open("logs/experiment_data.json", "r") as f:
+            with open("../../logs/experiment_data.json", "r") as f:
                 data = json.load(f)
             print(f"\n📝 Preview: {len(data)} log entries")
             for i, entry in enumerate(data[-3:]):  # Last 3 entries

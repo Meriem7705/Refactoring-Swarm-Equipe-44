@@ -9,7 +9,7 @@ import sys
 
 def logs_validate():
     """Validate experiment_data.json file"""
-    log_file = "../logs/experiment_data.json"
+    log_file = "logs/experiment_data.json"
     
     print("🔍 LOG VALIDATION - Data Officer")
     print("=" * 50)
