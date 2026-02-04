@@ -16,7 +16,6 @@ def creer_sandbox():
         os.makedirs(sandbox_path)
     return sandbox_path
 
-
 def lister_fichiers_sandbox():
     """ Liste les fichiers dans sandbox """
     sandbox_path = creer_sandbox()
@@ -43,18 +42,18 @@ def ecrire_fichier(nom_fichier, contenu):
     return chemin
 
 # =====================
-# 2. PYLINT FUNCTION
+# 2. PYLINT FUNCTION 
 # =====================
 
 def run_pylint(nom_fichier):
-    """Exécute pylint sur un fichier de sandbox et renvoie le score."""
+    """Exécute pylint sur un fichier de sandbox et renvoie le score + erreurs triées."""
     sandbox_path = creer_sandbox()
     chemin = os.path.join(sandbox_path, nom_fichier)
 
     if not os.path.exists(chemin):
-        return {"status": "error", "message": "Fichier introuvable"}
+        return {"success": False, "message": "Fichier introuvable"}
 
-     # On exécute pylint via python -m pylint pour être sûr que c'est le bon pylint
+    # Exécution de pylint
     result = subprocess.run(
          ["python", "-m", "pylint", "--output-format=json", chemin],
         capture_output=True,
@@ -62,50 +61,60 @@ def run_pylint(nom_fichier):
          shell=True  
     )
 
-    # Résultat JSON parsé
     try:
-        import json
+        # On transforme la sortie texte en vrai JSON
         pylint_data = json.loads(result.stdout)
+        
+        # --- Tri des erreurs par catégories ---
+        categorized = {"error": [], "warning": [], "convention": [], "refactor": []}
+        for issue in pylint_data:
+            # Pylint utilise 'type' pour classer (error, warning, etc.)
+            cat = issue.get('type', 'error') 
+            if cat in categorized:
+                categorized[cat].append(issue)
+        
+        # Retour structuré pour le PromptManager
+        return {
+            "success": True,
+            "score": result.returncode, # Une base pour le score
+            "issues": pylint_data,      # La liste complète
+            "categorized": categorized  # La liste triée (ce que l'IA va lire)
+        }
+        
     except json.JSONDecodeError:
-        pylint_data = {"raw_output": result.stdout}
-
-    # Retour structuré
-    return {
-        "returncode": result.returncode,  # 0 = ok, >0 = problème
-        "messages": pylint_data,          # liste de messages ou raw si erreur JSON
-        "stderr": result.stderr
-    }
+        # En cas d'erreur de lecture, on renvoie une structure vide mais compatible
+        return {
+            "success": False, 
+            "issues": [], 
+            "categorized": {"error": [], "warning": [], "convention": [], "refactor": []}
+        }
 
 # =====================
 # 3. PYTEST FUNCTION
 # =====================
 def run_pytest(nom_fichier_test):
-    """Exécute pytest sur un fichier de test dans sandbox et affiche tout."""
+    """Exécute pytest sur un fichier de test dans sandbox."""
     sandbox_path = creer_sandbox()
     chemin = os.path.join(sandbox_path, nom_fichier_test)
 
     if not os.path.exists(chemin):
         return {"status": "error", "message": "Test introuvable"}
 
-   
-    # Exécution de pytest avec sortie condensée (-q pour "quiet") et capture
     result = subprocess.run(
         ["python", "-m", "pytest", chemin, "-q", "--tb=short", "--disable-warnings", "--maxfail=5"],
         capture_output=True,
         text=True
     )
 
-    # Retour structuré exploitable par l'IA
     return {
-        "returncode": result.returncode,   # 0 = succès, >0 = échec
-        "stdout": result.stdout,           # sortie complète des tests
-        "stderr": result.stderr            # erreurs éventuelles
+        "returncode": result.returncode,
+        "stdout": result.stdout,
+        "stderr": result.stderr
     }
 
 # =====================
 # 4. LOGGING FUNCTION
 # =====================
-
 
 def log_action(action, details):
     """Enregistre une action dans logs/experiment_data.json"""
@@ -119,7 +128,7 @@ def log_action(action, details):
     try:
         with open(log_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError):
         data = []
 
     data.append({

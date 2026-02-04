@@ -18,6 +18,7 @@ Important rules:
       "description": "string"
     }
   ],
+  "code_corrige": "LE CODE PYTHON COMPLET ICI",
   "summary": "string",
   "status": "SUCCESS | FAILURE"
 }
