@@ -1,10 +1,10 @@
 import os
 import sys
 import argparse
+import time  # Import indispensable pour les pauses
 from pathlib import Path
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
-
 
 # -----------------------------
 # PATH CONFIG
@@ -16,7 +16,6 @@ from src.utils.logger import log_experiment, ActionType
 from src.utils.toolsmith_utils import run_pylint, run_pytest, lire_fichier, ecrire_fichier
 from src.prompts.PromptManager import PromptManager
 
-
 # -----------------------------
 # ENV
 # -----------------------------
@@ -26,7 +25,6 @@ api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
     print("❌ Clé API manquante (.env)")
     sys.exit(1)
-
 
 # -----------------------------
 # LLM
@@ -38,18 +36,17 @@ llm = ChatGoogleGenerativeAI(
     verbose=True
 )
 
-
 # =====================================================
 # ORCHESTRATEUR (Audit → Fix → Test → Loop)
 # =====================================================
 def orchestrator(file_path, max_iterations):
     pm = PromptManager()
     abs_path = os.path.abspath(file_path)
+    current_score = 0  # Suivi du score de qualité
 
     print(f"\n🚀 [MISSION] {file_path}")
 
     for iteration in range(1, max_iterations + 1):
-
         print(f"\n🔁 ITERATION {iteration}/{max_iterations}")
 
         # =====================================
@@ -58,6 +55,10 @@ def orchestrator(file_path, max_iterations):
         try:
             code_original = lire_fichier(abs_path)
             lint = run_pylint(abs_path)
+            
+            # Récupération du score pour l'IA
+            current_score = lint.get("score", 0)
+            print(f"📊 Qualité actuelle : {current_score}/10")
 
             prompt = pm.build_auditor_prompt(file_path, code_original, lint)
             response = llm.invoke(prompt)
@@ -69,20 +70,22 @@ def orchestrator(file_path, max_iterations):
                 {
                     "file": file_path,
                     "input_prompt": prompt,
-                    "output_response": response.content
+                    "output_response": response.content,
+                    "score": current_score
                 },
                 "SUCCESS"
             )
 
             analyse = pm.parse_json_response(response.content)
             plan = analyse.get("refactoring_plan", [])
+            print(f"✅ Audit OK ({len(plan)} problèmes détectés)")
 
-            print(f"✅ Audit OK ({len(plan)} problèmes)")
+            # Petite pause pour éviter l'erreur 429 entre deux appels
+            time.sleep(5)
 
         except Exception as e:
             print(f"❌ Audit failed: {e}")
             return
-
 
         # =====================================
         # 2️⃣ FIXER
@@ -113,21 +116,22 @@ def orchestrator(file_path, max_iterations):
             print(f"❌ Fix failed: {e}")
             return
 
-
-        # =====================================
-        # 3️⃣ JUDGE (pytest)
-        # =====================================
-        
         # =====================================
         # 3️⃣ JUDGE (pytest)
         # =====================================
         print("🧪 Running tests...")
+        # Pause avant les tests pour laisser le système de fichiers respirer
+        time.sleep(2)
         result_pytest = run_pytest(abs_path)
         
-        # On détecte si c'est un dictionnaire ou une liste
+        # Logique flexible basée sur le "status" renvoyé par toolsmith_utils
+        success = False
+        logs = "Aucun log"
+
         if isinstance(result_pytest, dict):
-            success = result_pytest.get("success", False)
-            logs = result_pytest.get("logs", "Aucun log")
+            # On utilise le 'status' SUCCESS/FAILURE qu'on a défini ensemble
+            success = result_pytest.get("status") == "SUCCESS"
+            logs = result_pytest.get("stdout", "Aucun log")
         else:
             success = result_pytest[0]
             logs = result_pytest[1]
@@ -145,17 +149,23 @@ def orchestrator(file_path, max_iterations):
         )
 
         if success:
-            print("🎉 Tests PASS → fichier validé")
-            return
+            # Si le score est parfait ou les tests passent, on s'arrête
+            if current_score >= 9.5:
+                print(f"🎉 MISSION ACCOMPLIE (Score: {current_score}/10) → fichier validé")
+                return
+            else:
+                print(f"✅ Tests OK, mais score Pylint ({current_score}) améliorable. Itération suivante...")
         else:
-            print("❌ Tests FAIL → nouvelle tentative")
+            print(f"❌ Tests FAIL ou Code incomplet → nouvelle tentative")
 
+        # Pause de fin d'itération pour reset le quota Gemini
+        print("⏳ Pause de 10s pour le quota API...")
+        time.sleep(10)
 
-    print("⚠️ Max iterations atteintes → abandon")
-
+    print("⚠️ Max iterations atteintes → fin de mission")
 
 # =====================================================
-# MAIN CLI
+# MAIN CLI (Reste inchangé)
 # =====================================================
 def main():
     parser = argparse.ArgumentParser()
@@ -163,21 +173,16 @@ def main():
     parser.add_argument("--max_iterations", type=int, default=5)
 
     args = parser.parse_args()
-
     print("🤖 Refactoring Swarm démarré")
-
     target = Path(args.target_dir)
 
     if target.is_file():
         orchestrator(str(target), args.max_iterations)
-
     elif target.is_dir():
         for f in target.glob("*.py"):
             orchestrator(str(f), args.max_iterations)
-
     else:
         print("❌ Chemin invalide")
-
 
 if __name__ == "__main__":
     main()
