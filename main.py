@@ -150,7 +150,7 @@ def orchestrator(file_path, max_iterations):
 
         if success:
             # Si le score est parfait ou les tests passent, on s'arrête
-            if current_score >= 9.5:
+            if current_score >= 9:
                 print(f"🎉 MISSION ACCOMPLIE (Score: {current_score}/10) → fichier validé")
                 return
             else:

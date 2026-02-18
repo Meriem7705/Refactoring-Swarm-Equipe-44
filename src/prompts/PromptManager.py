@@ -55,7 +55,6 @@ class PromptManager:
     # =================== FIXER ===================
     def build_fixer_prompt(self, file_name: str, content: str, plan: List[Dict], prev_errors: Optional[List[str]] = None) -> str:
         template = self.templates_cache.get("fixer", "")
-        # Ajout du contexte de score pour motiver le Fixer
         context = f"FICHIER À CORRIGER: {file_name}\n\nCODE ACTUEL:\n```python\n{content}\n```\n\nPLAN DE REFACTORING:\n"
         
         for idx, step in enumerate(plan, 1):
@@ -74,40 +73,42 @@ class PromptManager:
         
         return f"{template}\n\n{context}"
 
-    # =================== UTILITAIRES (LE CŒUR DE LA CORRECTION) ===================
+    # =================== UTILITAIRES (CORRIGÉ) ===================
     def parse_json_response(self, response: str) -> Optional[Dict]:
-        """Nettoyage robuste pour éviter les erreurs de caractères de contrôle."""
+        """
+        Analyse la réponse du LLM pour extraire l'objet JSON.
+        Préserve les sauts de ligne pour éviter les SyntaxError dans le code généré.
+        """
         if not response:
             return None
         
         try:
-            # ÉTAPE A : Nettoyage des caractères de contrôle JSON (le correctif pour ton erreur 429/504)
-            # On supprime les caractères non-imprimables qui font planter json.loads
-            clean_response = re.sub(r"[\x00-\x1F\x7F]", "", response)
-            
-            # ÉTAPE B : Extraction du JSON
-            # On cherche le premier '{' et le dernier '}'
-            json_match = re.search(r"(\{.*\})", clean_response, re.DOTALL)
+            # 1. Extraction du bloc JSON entre accolades { }
+            # re.DOTALL permet de capturer les sauts de ligne à l'intérieur du bloc
+            json_match = re.search(r"(\{.*\})", response, re.DOTALL)
             
             if json_match:
-                content = json_match.group(1)
-                # Supprimer les éventuels balisages Markdown restants à l'intérieur
-                content = content.strip()
-                return json.loads(content)
+                json_str = json_match.group(1)
+                # 2. json.loads convertit les \\n textuels en vrais sauts de ligne \n
+                return json.loads(json_str)
             
-            return None
+            # Si aucune accolade n'est trouvée, tentative de parsing direct
+            return json.loads(response.strip())
             
         except (json.JSONDecodeError, AttributeError) as e:
             print(f"⚠️ Erreur de décodage JSON : {e}")
-            # Tentative désespérée si le JSON est mal formé à cause de quotes internes
+            
+            # TENTATIVE DE RÉCUPÉRATION : 
+            # Nettoyage minimal des caractères de contrôle dangereux uniquement
             try:
-                # On essaie de réparer les doubles backslashes de Windows
-                content_fixed = response.replace('\\', '\\\\')
-                json_match = re.search(r"(\{.*\})", content_fixed, re.DOTALL)
+                # On garde \t (09), \n (0a), \r (0d) et on vire le reste de 0-31
+                clean_minimal = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", response)
+                json_match = re.search(r"(\{.*\})", clean_minimal, re.DOTALL)
                 if json_match:
                     return json.loads(json_match.group(1))
-            except:
+            except Exception:
                 pass
+            
             return None
 
     def get_template(self, agent: str) -> str:
