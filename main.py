@@ -57,6 +57,7 @@ def orchestrator(file_path, max_iterations):
             lint = run_pylint(abs_path)
             
             # Récupération du score pour l'IA
+            lint = run_pylint(abs_path)
             current_score = lint.get("score", 0)
             print(f"📊 Qualité actuelle : {current_score}/10")
 
